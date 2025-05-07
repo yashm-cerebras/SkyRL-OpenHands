@@ -26,11 +26,13 @@ You can install the dependencies with poetry:
 poetry install
 ```
 
-### 2. Launch the server on ${HOST}
+### 2. Launch the server
 
 ```bash
 ALLHANDS_API_KEY=<your_api_key> python -m openhands.runtime.remote_runtime_server.main --host ${HOST} --port ${PORT}
 ```
+
+Make sure to set `HOST` to be the _public_ IP for your machine! `ALLHANDS_API_KEY` can be any key of your choice - this is used for authentication during evaluation. 
 
 ### 3. Run evaluations
 
@@ -42,6 +44,9 @@ RUNTIME=remote \
 SANDBOX_REMOTE_RUNTIME_API_URL="http://${HOST}:${PORT}" \
 ./evaluation/benchmarks/swe_bench/scripts/run_infer.sh llm.gpt_4o_mini HEAD CodeActAgent 1 10 1 "princeton-nlp/SWE-bench_Lite" test
 ```
+
+## Configuring regular docker cleanup
+For running your server for a long time period, it's important to periodically clean up older containers (in case of a network failure or sudden exit during evaluation) as well as images in case your storage space is small. We provide basic scripts for cleaning containers and images to be used as cron jobs. Our pre-built [image](https://hub.docker.com/r/sumanthrh/openhands-dev) for Linux comes with all these configured. If you're running on your machine and want to set this up, you can refer to the clean up scripts in [runtime](/containers/runtime/). 
 
 ## Image Caching
 
