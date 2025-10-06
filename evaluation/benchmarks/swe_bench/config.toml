@@ -1,5 +1,5 @@
 [llm.qwen_3_32b]
 model = "qwen3-32b"
-base_url = "https://localhost:8000/v1"
+base_url = "https://localhost:8080/v1"
 api_key = "EMPTY"
 temperature = 0.0
