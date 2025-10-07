@@ -58,6 +58,7 @@ from openhands.events.serialization.event import event_from_dict, event_to_dict
 from openhands.runtime.base import Runtime
 from openhands.utils.async_utils import call_async_from_sync
 from openhands.utils.shutdown_listener import sleep_if_should_continue
+import logging
 
 try:
     logger.setLevel(logging.DEBUG)
