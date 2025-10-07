@@ -41,12 +41,17 @@ def send_request(
     timeout: int = 10,
     **kwargs: Any,
 ) -> httpx.Response:
+    
+    print('[OPENHANDS] Trying to hit url', url)
+    print('[OPENHANDS] Trying to hit method', method)
+    
     response = session.request(method, url, timeout=timeout, **kwargs)
     try:
         response.raise_for_status()
     except httpx.HTTPError as e:
         try:
             _json = response.json()
+            
         except json.decoder.JSONDecodeError:
             _json = None
         finally:
