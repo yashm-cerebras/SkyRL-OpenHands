@@ -59,6 +59,11 @@ from openhands.runtime.base import Runtime
 from openhands.utils.async_utils import call_async_from_sync
 from openhands.utils.shutdown_listener import sleep_if_should_continue
 
+try:
+    logger.setLevel(logging.DEBUG)
+except:
+    print('logging debug mode failed')
+
 USE_HINT_TEXT = os.environ.get('USE_HINT_TEXT', 'false').lower() == 'true'
 RUN_WITH_BROWSING = os.environ.get('RUN_WITH_BROWSING', 'false').lower() == 'true'
 BenchMode = Literal['swe', 'swt', 'swt-ci']
@@ -67,6 +72,32 @@ BenchMode = Literal['swe', 'swt', 'swt-ci']
 AGENT_CLS_TO_FAKE_USER_RESPONSE_FN = {
     'CodeActAgent': codeact_user_response,
 }
+
+
+# If the remote Runtime uses httpx/urllib3 under the hood, this surfaces 4xx bodies
+logging.getLogger("httpx").setLevel(logging.DEBUG)
+logging.getLogger("urllib3").setLevel(logging.DEBUG)
+
+def _log_action_json(action):
+    try:
+        from openhands.events.serialization.event import event_to_dict
+        payload = event_to_dict(action)
+        logger.debug("ACTION_JSON => %s", json.dumps(payload, default=str))
+    except Exception as e:
+        logger.debug("ACTION_LOG_FALLBACK (repr) => %r (error: %s)", action, e)
+
+def _log_obs_json(obs):
+    try:
+        from openhands.events.serialization.event import event_to_dict
+        payload = event_to_dict(obs)
+        logger.debug("OBS_JSON <= %s", json.dumps(payload, default=str))
+    except Exception as e:
+        # Many observations include helpful text on .content/.metadata; dump those too
+        content = getattr(obs, "content", None)
+        meta    = getattr(obs, "metadata", None)
+        logger.debug("OBS_LOG_FALLBACK (repr) => %r (error: %s)", obs, e)
+        logger.debug("OBS.content: %r", content)
+        logger.debug("OBS.metadata: %r", meta)
 
 
 # def _get_swebench_workspace_dir_name(instance: pd.Series) -> str:
@@ -303,8 +334,10 @@ def initialize_runtime(
     )
     action.set_hard_timeout(600)
     logger.info(action, extra={'msg_type': 'ACTION'})
+    _log_action_json(action) 
     obs = runtime.run_action(action)
     logger.info(obs, extra={'msg_type': 'OBSERVATION'})
+    _log_action_json(action) 
     assert_and_raise(
         obs.exit_code == 0,
         f'Failed to export SWE_INSTANCE_ID and configure git: {str(obs)}',
