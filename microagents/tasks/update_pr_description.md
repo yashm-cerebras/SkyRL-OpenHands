@@ -1,6 +1,6 @@
 ---
 name: update_pr_description
-type: task
+type: repo
 version: 1.0.0
 author: openhands
 agent: CodeActAgent
