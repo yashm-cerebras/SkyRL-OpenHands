@@ -1,6 +1,6 @@
 ---
 name: add_openhands_repo_instruction
-type: task
+type: repo
 version: 1.0.0
 author: openhands
 agent: CodeActAgent
